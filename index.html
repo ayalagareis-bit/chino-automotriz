@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chino automotriz</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, Arial, sans-serif;
+  background: #eef1f5;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  color: #17202a;
+}
+h2 { margin: 14px 0 6px; }
+#stats { color: #596579; margin-bottom: 18px; }
+#card {
+  background: white;
+  border-radius: 22px;
+  min-height: 290px;
+  padding: 30px 15px;
+  box-shadow: 0 5px 22px #0002;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  user-select: none;
+  touch-action: pan-y;
+}
+#symbol {
+  font-size: 110px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+#meaning {
+  font-size: 25px;
+  margin-top: 20px;
+  font-weight: bold;
+  min-height: 34px;
+}
+.hint { color: #798391; font-size: 14px; }
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#reveal {
+  background: #243c65;
+  color: white;
+  width: 100%;
+  margin-top: 18px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.actions button { flex: 1; }
+#wrong { background: #ffd8d8; }
+#right { background: #c8f0d7; }
+#next {
+  background: #dce5f6;
+  width: 100%;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<h2>Chino automotriz</h2>
+<div id="stats">12 caracteres para practicar</div>
+
+<div id="card" onclick="reveal()">
+  <div id="symbol"></div>
+  <div id="meaning"></div>
+  <div class="hint" id="hint">Tocá para descubrir</div>
+</div>
+
+<button id="reveal" onclick="reveal()">
+  Ver significado
+</button>
+
+<div class="actions">
+  <button id="wrong" onclick="answer(false)">
+    No lo sé
+  </button>
+  <button id="right" onclick="answer(true)">
+    Lo sé
+  </button>
+</div>
+
+<button id="next" onclick="nextCard()">
+  Otra tarjeta ↻
+</button>
+
+<script>
+const cards = [
+  ["车", "Vehículo / auto"],
+  ["电", "Electricidad"],
+  ["油", "Aceite / combustible"],
+  ["机", "Máquina"],
+  ["气", "Aire / gas"],
+  ["水", "Agua"],
+  ["火", "Fuego"],
+  ["大", "Grande"],
+  ["小", "Chico / pequeño"],
+  ["力", "Fuerza"],
+  ["动", "Mover / movimiento"],
+  ["发", "Iniciar / generar"]
+];
+
+let weights = cards.map(() => 3);
+let current = -1;
+let seen = 0;
+let correct = 0;
+let shown = false;
+
+function nextCard() {
+  let choices = [];
+
+  weights.forEach((w, i) => {
+    if (i !== current) {
+      for (let j = 0; j < w; j++) {
+        choices.push(i);
+      }
+    }
+  });
+
+  current = choices[
+    Math.floor(Math.random() * choices.length)
+  ];
+
+  shown = false;
+
+  document.getElementById("symbol").textContent =
+    cards[current][0];
+
+  document.getElementById("meaning").textContent = "";
+
+  document.getElementById("hint").textContent =
+    "Tocá para descubrir";
+
+  updateStats();
+}
+
+function reveal() {
+  shown = true;
+
+  document.getElementById("meaning").textContent =
+    cards[current][1];
+
+  document.getElementById("hint").textContent = "";
+}
+
+function answer(known) {
+  if (!shown) {
+    reveal();
+    return;
+  }
+
+  seen++;
+
+  if (known) {
+    correct++;
+  }
+
+  weights[current] = known ? 1 : 6;
+
+  nextCard();
+}
+
+function updateStats() {
+  document.getElementById("stats").textContent =
+    "Practicadas: " + seen +
+    " | Correctas: " + correct;
+}
+
+let startX = 0;
+
+const card = document.getElementById("card");
+
+card.addEventListener("touchstart", e => {
+  startX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+card.addEventListener("touchend", e => {
+  const dx =
+    e.changedTouches[0].screenX - startX;
+
+  if (Math.abs(dx) > 70) {
+    nextCard();
+  }
+}, { passive: true });
+
+nextCard();
+</script>
+
+</body>
+</html>
