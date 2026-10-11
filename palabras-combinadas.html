@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#243c65">
+<title>Chino automotriz — Palabras combinadas</title>
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;background:#eef1f5;color:#17202a;margin:0;padding:20px;text-align:center}main{max-width:540px;margin:auto}h1{font-size:25px;margin:10px 0 5px}p{color:#596579;margin:5px 0 18px}label{display:block;margin-bottom:8px;font-weight:600}select{width:100%;font-size:17px;padding:13px;background:#fff;border:1px solid #c5cfda;border-radius:12px}#stats{color:#596579;margin:15px 0;font-size:14px}#card{background:#fff;border-radius:22px;min-height:300px;padding:28px 16px;box-shadow:0 5px 22px #0002;display:flex;flex-direction:column;justify-content:center;align-items:center;user-select:none;touch-action:pan-y;cursor:pointer}#symbol{font-size:clamp(56px,14vw,92px);font-weight:500;line-height:1.35;overflow-wrap:anywhere}#meaning{font-size:24px;font-weight:700;margin-top:20px;min-height:30px}#hint{font-size:14px;color:#798391;margin-top:12px}button{border:0;border-radius:12px;padding:16px;font-size:17px;font-weight:600;cursor:pointer}#reveal{background:#243c65;color:white;width:100%;margin-top:18px}.actions{display:flex;gap:12px;margin-top:12px}.actions button{flex:1}#wrong{background:#ffd8d8}#right{background:#c8f0d7}#next{background:#dce5f6;width:100%;margin-top:12px}footer{color:#687486;font-size:13px;margin-top:22px}
+</style>
+</head>
+<body><main>
+<h1>Chino automotriz</h1><p>Palabras combinadas · lectura técnica</p>
+<label for="group">Grupo de práctica</label>
+<select id="group"><option value="review">Repaso de palabras conocidas</option><option value="extra">Nuevas combinaciones</option><option value="all">Todas las palabras</option></select>
+<div id="stats" aria-live="polite"></div>
+<div id="card" role="button" tabindex="0" aria-label="Tarjeta: tocar para ver significado"><div id="symbol"></div><div id="meaning" aria-live="polite"></div><div id="hint">Tocá para descubrir</div></div>
+<button id="reveal">Ver significado</button>
+<div class="actions"><button id="wrong">No lo sé</button><button id="right">Lo sé</button></div>
+<button id="next">Otra tarjeta ↻</button>
+<footer>Las palabras que no recordás vuelven a salir más seguido.</footer>
+</main>
+<script>
+'use strict';
+const cards=[
+["车轮","Rueda del vehículo","review"],
+["车速","Velocidad del vehículo","review"],
+["油压","Presión de aceite","review"],
+["油温","Temperatura del aceite","review"],
+["水温","Temperatura del agua / refrigerante","review"],
+["冷水","Agua fría","review"],
+["热水","Agua caliente","review"],
+["制动","Frenado","review"],
+["刹车","Freno / frenar","review"],
+["传动","Transmisión de movimiento","review"],
+["传动轴","Árbol de transmisión / cardán","review"],
+["发动机","Motor del vehículo","review"],
+["高油压","Presión de aceite elevada","review"],
+["冷却","Enfriamiento / refrigeración","review"],
+["电机","Motor eléctrico","extra"],
+["电动车","Vehículo eléctrico","extra"],
+["高速","Alta velocidad","extra"],
+["低速","Baja velocidad","extra"],
+["气压","Presión del aire / gas","extra"],
+["水压","Presión del agua","extra"],
+["压力","Presión / fuerza aplicada","extra"],
+["大车","Vehículo grande","extra"],
+["小车","Vehículo pequeño","extra"],
+["起动机","Motor de arranque (burro)","extra"]
+];
+let group='review',current=-1,seen=0,correct=0,shown=false;
+const weights=cards.map(()=>3);
+const $=id=>document.getElementById(id);
+function active(){return cards.map((c,i)=>i).filter(i=>group==='all'||cards[i][2]===group)}
+function stats(){$('stats').textContent=`Tarjetas: ${active().length} · Practicadas: ${seen} · Correctas: ${correct}`}
+function nextCard(){const ids=active(),pool=[];ids.forEach(i=>{if(i!==current)for(let j=0;j<weights[i];j++)pool.push(i)});if(!pool.length)pool.push(...ids);current=pool[Math.floor(Math.random()*pool.length)];shown=false;$('symbol').textContent=cards[current][0];$('meaning').textContent='';$('hint').textContent='Tocá para descubrir';stats()}
+function reveal(){if(current<0)return;shown=true;$('meaning').textContent=cards[current][1];$('hint').textContent=''}
+function answer(known){if(!shown){reveal();return}seen++;if(known)correct++;weights[current]=known?1:6;nextCard()}
+$('group').addEventListener('change',e=>{group=e.target.value;current=-1;seen=0;correct=0;nextCard()});
+$('card').addEventListener('click',reveal);$('card').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();reveal()}});
+$('reveal').addEventListener('click',reveal);$('wrong').addEventListener('click',()=>answer(false));$('right').addEventListener('click',()=>answer(true));$('next').addEventListener('click',nextCard);
+let startX=0;$('card').addEventListener('touchstart',e=>{startX=e.changedTouches[0].screenX},{passive:true});$('card').addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].screenX-startX)>70)nextCard()},{passive:true});nextCard();
+</script></body></html>
